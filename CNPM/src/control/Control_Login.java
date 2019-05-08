@@ -37,30 +37,20 @@ public class Control_Login extends HttpServlet {
 		action = request.getParameter("action");
 		PrintWriter out = response.getWriter();// su dung print writer de in ket qua
 
-		// TH1: Login by Account
+		// USE CASE: Login by Account
 		if (action.equals("account")) {
-			System.out.println("here...");
 			// 2.2.6: lay du lieu gui tu client len
 			String username = request.getParameter("Username");
 			String pass = request.getParameter("Password");
 
-			System.out.println("username: " + username);
-			System.out.println("password: " + pass);
-			
 			// 2.2.7. khoi tao hình thức đăng nhập là đăng nhập với account
 			login = new LoginAccount();
-			System.out.println("khoi tao thanh cong");
 
 			// 2.2.8. phuong thuc check(username, password)
-//			String path= "D:\\Nong Lam University\\webprogramming\\CNPM2\\config\\config.properties";
-//			String path=  getServletContext().getRealPath("/config/config.properties");
-//			System.out.println("Path: "+path);
-			
 			String result = login.account.check(username, pass);
-			System.out.println("result " + result);
 
 			if (result != null) {
-				// đúng username, passowrd
+				// ********** đúng username, passowrd
 				// 2.2.8.1: Respone("Đăng nhập thành công")
 				out.println("Đăng nhập thành công");
 				out.println(result);
@@ -74,18 +64,58 @@ public class Control_Login extends HttpServlet {
 				RequestDispatcher re = getServletContext().getRequestDispatcher(url);
 				re.forward(request, response);
 			}
-
-			// TH2:Login by facebook
+			// USE CASE: LOGIN BY FACEBOOK
 		} else if (action.equals("facebook")) {
 			login = new LoginFacebook();
 			// code here
 			// goi phuong thuc ra de thuc hien: login.facebook.method()
 
-			// TH3: Login by Gmail
+			// USE CASE: LOGIN BY EMAIL
 		} else if (action.equals("gmail")) {
 			login = new LoginGoogle();
+
 			// code here
 			// goi phuong thuc ra de thuc hien: login.gmail.method()
+
+			// Use case: FORGOT PASSWORD
+		} else if (action.equals("forgotpass")) {
+
+			// Gửi yêu cầu là email người dùng nhập
+			String email = request.getParameter("emailforgot");
+			// 6.2.5.Gọi hình thức đăng nhập là Account
+			login = new LoginAccount();
+			// 6.2.6.hasExistEmail(String email)
+			boolean exist = login.account.hasExistEmail(email);
+			if (exist) {
+				// 6.2.8. Thông báo gửi mail thành công
+				out.println(
+						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
+				out.println(
+						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
+				out.println("<script type=\"text/javascript\">");
+				out.println("	$(document).ready(function(){");
+				out.println("swal ( \"SUCCESS\" ,  \"CHECK YOUR AND LOGIN AGIAN\" ,  \"success\" )");
+				out.println("});");
+				out.println("</script>");
+
+			} else {
+				// ALT
+
+				// 6.3.1.1. Hiện thông báo Email không tồn tại
+				out.println(
+						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
+				out.println(
+						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
+				out.println("<script type=\"text/javascript\">");
+				out.println("	$(document).ready(function(){");
+				out.println("swal ( \"ERROR\" ,  \"YOUR EMAIL DON'T EXIST !!!\" ,  \"error\" )");
+				out.println("});");
+				out.println("</script>");
+			}
+			// chuyen trang ve
+			String url = "/login.jsp";
+			RequestDispatcher re = getServletContext().getRequestDispatcher(url);
+			re.include(request, response);
 
 		} else {
 			out.println("NOT FOUND ACTION");
