@@ -1,9 +1,11 @@
-package model.account;
+﻿package model.account;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import model.send_mail.SendMail;
 
 public class AccountImpl implements AccountAble {
 
@@ -26,7 +28,7 @@ public class AccountImpl implements AccountAble {
 			// thuc thi voi DB
 			ResultSet re = pre.executeQuery();
 
-			while (re.next()) {
+			if (re.next()) {
 				// lay tung thong tin cua tung record
 				int id = re.getInt("id");
 				String user = re.getString("username");
@@ -38,14 +40,33 @@ public class AccountImpl implements AccountAble {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		return result;
 	}
 
-	//test demo
-	public static void main(String[] args) {
-		System.out.println(new AccountImpl().check("DangDa", "111"));
-		// neu khong co du lieu se tra ve null
+	// 6.2.6. sendMail(String to, String subject, String bodyMail, String mail,
+	// String pass)
+	@Override
+	public boolean hasExistEmail(String email) {
+		// mo ket noi toi DB
+		Connection conn = new GetConnection().getConnection();
+		try {
+			PreparedStatement pre = conn.prepareStatement("select pass from userpass where email like ?");
+			// thiet lap email do nguoi dung nhao vao
+			pre.setString(1, email);
+			// thuc thi voi DB
+			ResultSet re = pre.executeQuery();
+			//Neu co 
+			if (re.next()) {
+				String pass = re.getString("pass");
+				//6.2.7: Gui mail
+				SendMail.sendMail(email, "FORGOT PASSWORD", "YOUR PASSWORD: " + pass, "dangvanda.itnlu@gmail.com",
+						"xxxxxxxxx");
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 }
