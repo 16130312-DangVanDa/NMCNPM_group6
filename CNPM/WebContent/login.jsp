@@ -76,7 +76,7 @@
 		<div class="footer_grid-w3ls">
 			<h5 class="sub-hdg-w3l">or connect to social profiles</h5>
 			<ul class="social-icons-agileits-w3layouts">
-				<li><a href="http://www.facebook.com/dialog/oauth?client_id=1057645477779580&redirect_uri=http://localhost:8080/Project_NMCNPM/login-with-facebook" class="fa fa-facebook"></a></li>
+				<li><a href="https://www.facebook.com/dialog/oauth?client_id=1057645477779580&redirect_uri=https://localhost:8443/CNPM/Control_Login?action=facebook" class="fa fa-facebook"></a></li>
 				<li><a href="#" class="fa fa-twitter"></a></li>
 				<li><a href="#" class="fa fa-google-plus"></a></li>
 			</ul>
