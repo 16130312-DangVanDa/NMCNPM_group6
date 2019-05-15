@@ -83,23 +83,25 @@ public class Control_Login extends HttpServlet {
 			}
 
 			// USE CASE: LOGIN BY FACEBOOK
+			// Từ 3.2.1 đến 3.2.7 được thực hiện bên hệ thống trang Facebook
 		} else if (action.equals("facebook")) {
+			// 3.2.8. Nhận "code" xác thực
 			String code = request.getParameter("code");
-			// khởi tạo lớp đăng nhập facebook
+			// 3.2.8. Khởi tạo lớp đăng nhập facebook
 			login = new LoginFacebook();
-
+			
 			if (code == null || code.isEmpty()) {
 				RequestDispatcher dis = request.getRequestDispatcher("login.jsp");
 				dis.forward(request, response);
 			} else {
-				// 3.2.8 lấy accessToken của Facebook về .
+				// 3.2.10. Yêu cầu chuỗi truy cập để lấy thông tin tài khoản từ "code" xác thực 
 				String accessToken = login.facebook.getToken(code);
-				// 3.2.9 lấy thông tin tài khoản Facebook thông qua accesssToken
+				// 3.2.12  Yêu cầ thông tin tài khoản Facebook thông qua accesssToken
 				User user = login.facebook.getUserInfo(accessToken);
 
 				request.setAttribute("id", user.getId());
 				request.setAttribute("name", user.getName());
-				// 3.2.10 Trả về view kết quả thành công !
+				// 3.2.15 Trả về view kết quả thành công !
 				out.println(
 						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
 				out.println(
