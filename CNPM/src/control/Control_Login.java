@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -36,52 +35,59 @@ public class Control_Login extends HttpServlet {
 		response.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 
-		action = request.getParameter("action");
-		PrintWriter out = response.getWriter();// su dung print writer de in ket qua
+		action = request.getParameter("action");// nhận hành động
+		PrintWriter out = response.getWriter();
 
 		// USE CASE: Login by Account
 		if (action.equals("account")) {
-			// 2.2.6: lay du lieu gui tu client len
+			// 1. Nhận dữ liệu gửi từ client lên gồm username và password
 			String username = request.getParameter("Username");
 			String pass = request.getParameter("Password");
-
-			// 2.2.7. khoi tao hÃ¬nh thá»©c Ä‘Äƒng nháº­p lÃ  Ä‘Äƒng nháº­p vá»›i account
+			// 2. Khởi tạo hình thức login bằng account
 			login = new LoginAccount();
-		
-			// 2.2.8. phuong thuc check(username, password)
+			// 3. Gọi phương thức kiểm tra tính đúng đắn của username và password, trả về
+			// chuỗi kết quả
 			String result = login.account.check(username, pass);
-
 			if (result != null) {
-				// ********** Ä‘Ãºng username, passowrd
-				// 2.2.8.1: Respone("Ä�Äƒng nháº­p thÃ nh cÃ´ng")
-				out.println("Ä�Äƒng nháº­p thÃ nh cÃ´ng");
-				out.println(result);
+				// ** Nhánh 4.1: đúng username, passowrd
+
+				// 4.1.1. Tạo form thông báo đăng nhập thành công và hiện thông tin tài khoản.
+				out.println(
+						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
+				out.println(
+						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
+				out.println("<script type=\"text/javascript\">");
+				out.println("	$(document).ready(function(){");
+				out.println("swal ( \"Login success\" ,  \"" + result + "\" ,  \"success\" )");
+				out.println("});");
+				out.println("</script>");
+
+				// 4.1.2. Chuyển trang Index
+				String url = "/index.jsp";
+				RequestDispatcher re = getServletContext().getRequestDispatcher(url);
+				re.include(request, response);
+
 			} else {
-				// 2.2.8.2: luu request de gui lai client
+				// ** Nhánh 4.2: sai username hoac password
+
+				// 4.2.1. Lưu thông tin username, password và thông báo "Something invalid!
+				// Please check again" xuống request
 				request.setAttribute("username", username);
 				request.setAttribute("password", pass);
-				request.setAttribute("login_fail", "CÃ³ cÃ¡i gÃ¬ Ä‘Ã³ khÃ´ng há»£p lá»‡! Má»�i nháº­p láº¡i");
-				// chuyen ve trang login
+				request.setAttribute("login_fail", "Something invalid! Please check again");
+
+				// 4.2.2. chuyển về trang Login
 				String url = "/login.jsp";
 				RequestDispatcher re = getServletContext().getRequestDispatcher(url);
 				re.forward(request, response);
 			}
-			
-		}
-		// USE CASE: LOGIN BY FACEBOOK
-		// 3.2.2 Hệ thống gửi yêu cầu xác thực với Facebook
-		// 3.2.3 Hệ thống hiện form yêu cầu đăng nhập tài khoản
-		// 3.2.4 Người dùng đăng nhập.
-		// 3.2.5 Hệ thống chứng thực Facebook yêu cầu xác nhận các quyền truy cập thông tin tài khoản.
-		// 3.2.6 Người dùng cấp quyền cho ứng dụng cá nhân đó.
-		// 3.2.7 Facebook chuyển mã code và action đến hệ thống 
 
-		// 3.2.8  Kiểm tra action và lấy parameter code về nếu action là facebook !
-		else if (action.equals("facebook")) {
+			// USE CASE: LOGIN BY FACEBOOK
+		} else if (action.equals("facebook")) {
 			String code = request.getParameter("code");
-			// khởi tạo lớp đăng nhập facebook 
+			// khởi tạo lớp đăng nhập facebook
 			login = new LoginFacebook();
-			// kiểm tra lỗi
+
 			if (code == null || code.isEmpty()) {
 				RequestDispatcher dis = request.getRequestDispatcher("login.jsp");
 				dis.forward(request, response);
@@ -90,58 +96,69 @@ public class Control_Login extends HttpServlet {
 				String accessToken = login.facebook.getToken(code);
 				// 3.2.9 lấy thông tin tài khoản Facebook thông qua accesssToken
 				User user = login.facebook.getUserInfo(accessToken);
-		
 
 				request.setAttribute("id", user.getId());
 				request.setAttribute("name", user.getName());
 				// 3.2.10 Trả về view kết quả thành công !
-				RequestDispatcher dis = request.getRequestDispatcher("index.jsp");
-				dis.forward(request, response);
+				out.println(
+						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
+				out.println(
+						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
+				out.println("<script type=\"text/javascript\">");
+				out.println("	$(document).ready(function(){");
+				out.println("swal ( \"SUCCESS\" ,  \"id: " + user.getId() + ", name: " + user.getName()
+						+ "\" ,  \"success\" )");
+				out.println("});");
+				out.println("</script>");
+
+				String url = "/index.jsp";
+				RequestDispatcher re = getServletContext().getRequestDispatcher(url);
+				re.include(request, response);
 			}
 
 			// USE CASE: LOGIN BY EMAIL
 		} else if (action.equals("gmail")) {
 			login = new LoginGoogle();
-			
-			// code here
-			// goi phuong thuc ra de thuc hien: login.gmail.method()
+			//code here
 
-			// Use case: FORGOT PASSWORD
+			// USE CASE: FORGOT PASSWORD
 		} else if (action.equals("forgotpass")) {
 
-			// Gá»­i yÃªu cáº§u lÃ  email ngÆ°á»�i dÃ¹ng nháº­p
+			// 1. Nhận dữ liệu gửi từ client gửi lên gồm email
 			String email = request.getParameter("emailforgot");
-			// 6.2.5.Gá»�i hÃ¬nh thá»©c Ä‘Äƒng nháº­p lÃ  Account
+			// 2. Khởi tạo hình thức login bằng account
 			login = new LoginAccount();
-			// 6.2.6.hasExistEmail(String email)
+
+			// 3. Gọi phương thức kiểm tra email có tồn tại trong hệ thống
+			// 6.2.6.hasExistEmail(String email): sequence
 			boolean exist = login.account.hasExistEmail(email);
 			if (exist) {
-				// 6.2.8. ThÃ´ng bÃ¡o gá»­i mail thÃ nh cÃ´ng
+				// ** Nhánh 4.2
+				// 4.2.1. Tạo form thông báo thành công "Your password is send to your email."
 				out.println(
 						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
 				out.println(
 						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
 				out.println("<script type=\"text/javascript\">");
 				out.println("	$(document).ready(function(){");
-				out.println("swal ( \"SUCCESS\" ,  \"CHECK YOUR AND LOGIN AGIAN\" ,  \"success\" )");
+				out.println("swal ( \"SUCCESS\" ,  \"Your password is send to your email.\" ,  \"success\" )");
 				out.println("});");
 				out.println("</script>");
-
 			} else {
-				// ALT
+				// **Nhanh 4.1
 
-				// 6.3.1.1. Hiá»‡n thÃ´ng bÃ¡o Email khÃ´ng tá»“n táº¡i
+				// 4.1.1. Tạo form thông báo "Your account with email don't exist !!!"
 				out.println(
 						"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
 				out.println(
 						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.4/sweetalert2.all.js\"></script>");
 				out.println("<script type=\"text/javascript\">");
 				out.println("	$(document).ready(function(){");
-				out.println("swal ( \"ERROR\" ,  \"YOUR EMAIL DON'T EXIST !!!\" ,  \"error\" )");
+				out.println("swal ( \"ERROR\" ,  \"Your account with email don't exist !!!\" ,  \"error\" )");
 				out.println("});");
 				out.println("</script>");
 			}
-			// chuyen trang ve
+			// 5. Chuyển về trang login
 			String url = "/login.jsp";
 			RequestDispatcher re = getServletContext().getRequestDispatcher(url);
 			re.include(request, response);

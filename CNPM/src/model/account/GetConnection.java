@@ -5,39 +5,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
+//lay copnnection
 public class GetConnection {
 
-	public Connection getConnection() {
-		String driver = null;
-		String url = null;
-		String user = null;
-		String pass = null;
-		try (InputStream input = new FileInputStream("properties/config.properties")) {
-			Properties prop = new Properties();
-			// load a properties file
-			prop.load(input);
-			// doc tu file property
-			driver = prop.getProperty("driver");
-			System.out.println(driver);
-			url = prop.getProperty("url");
-			System.out.println(url);
-			user = prop.getProperty("user");
-			System.out.println(user);
-			pass = "    ";
+	String driver = "com.mysql.jdbc.Driver";
+	String url = "jdbc:mysql://103.98.148.33:3306/chickennlu_demo";
+	String user = "chickennlu_dangvanda";
+	String pass = "khongmatkhau";
 
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		Connection connection = null;
+	public Connection getConnection() {
+		Connection conn = null;
 		try {
 			Class.forName(driver);
-			connection = DriverManager.getConnection(url, user, pass);
-		} catch (Exception e) {
+			try {
+				conn = DriverManager.getConnection(url, user, pass);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		return connection;
+
+		return conn;
+
 	}
 
 	public static void main(String[] args) {
